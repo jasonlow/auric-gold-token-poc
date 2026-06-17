@@ -1,0 +1,5 @@
+# `mock` profile: external vendors (vault, dealer, KYC, oracle, bank) are simulated.
+# Adapter wiring is added in the SIM-* / ENGINE-* tasks; this flag selects mock impls.
+auric:
+  vendors:
+    mode: mock

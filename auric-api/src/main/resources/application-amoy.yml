@@ -1,0 +1,30 @@
+# Amoy profile — run the engine against the public Polygon Amoy testnet.
+# Run with:  SPRING_PROFILES_ACTIVE=amoy,mock   (vendors stay simulated)
+#
+# All values are env-driven (chain config is never hardcoded). After you deploy
+# the contracts (`npm run deploy:amoy`), the addresses are in
+# auric-smart-contract/deployments/amoy.json — set them as the env vars below.
+#
+# Required env:
+#   MINTER_PRIVATE_KEY        the TrustedIssuer key that signs mints/burns
+#   GOLD_TOKEN_ADDRESS, IDENTITY_REGISTRY_ADDRESS, COMPLIANCE_MODULE_ADDRESS,
+#   TRUSTED_ISSUERS_ADDRESS, PRICE_FEED_ADDRESS   from your deployment
+# Recommended env:
+#   BLOCKCHAIN_RPC_URL        your Alchemy Amoy URL (public RPC is the default)
+blockchain:
+  rpc-url: ${BLOCKCHAIN_RPC_URL:https://rpc-amoy.polygon.technology}
+  chain-id: 80002
+  minter-private-key: ${MINTER_PRIVATE_KEY:}
+  contracts:
+    gold-token: ${GOLD_TOKEN_ADDRESS:}
+    identity-registry: ${IDENTITY_REGISTRY_ADDRESS:}
+    compliance-module: ${COMPLIANCE_MODULE_ADDRESS:}
+    trusted-issuers: ${TRUSTED_ISSUERS_ADDRESS:}
+    price-feed: ${PRICE_FEED_ADDRESS:}
+
+# The Amoy price feed is our MockV3Aggregator (it does not auto-update like real
+# Chainlink), so relax the staleness guard. Refresh it with `npm run set-price`
+# if quotes start 409-ing after a long idle.
+auric:
+  pricing:
+    oracle-max-stale-seconds: 31536000

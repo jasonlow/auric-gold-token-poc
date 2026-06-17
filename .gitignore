@@ -1,0 +1,69 @@
+# ---- Secrets / env (NEVER commit) ----
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets/
+**/keystore/
+# personal scratch — contains real test keys / RPC keys
+notes.txt
+# TS build cache
+*.tsbuildinfo
+
+# ---- Planning / business / internal docs (kept local, not published) ----
+GOLD TOKENISATION PILOT Proposal.md
+business-requirements-specification.md
+solution-architecture.md
+ux-requirements.md
+user-guide.md
+poc-plan.md
+poc-report.md
+poc-task-list.md
+CLAUDE.md
+
+# ---- Node / Vite / Hardhat (auric-web, auric-smart-contract) ----
+node_modules/
+dist/
+dist-ssr/
+.vite/
+coverage/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Hardhat
+artifacts/
+cache/
+typechain-types/
+deployments/local/
+
+# Deployment artifacts (generated on deploy; carry the deployer wallet + per-deploy addresses)
+auric-smart-contract/deployments/amoy.json
+auric-smart-contract/exports/deployments.json
+
+# ---- Java / Maven / Spring Boot (auric-api) ----
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+*.log
+hs_err_pid*
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+.vscode/
+
+# ---- Local tool settings ----
+.claude/
+.venv-slither/
+
+# ---- Demo / chaos test harness (kept local, not published) ----
+demo.sh
+chaos.sh
+auric-smart-contract/scripts/demo.ts
+auric-smart-contract/scripts/chaos.ts

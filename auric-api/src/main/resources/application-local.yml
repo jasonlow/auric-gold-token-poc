@@ -1,0 +1,26 @@
+logging:
+  level:
+    com.auric: DEBUG
+    org.flywaydb: INFO
+
+# Hardhat freezes block.timestamp while idle, so the on-chain price feed "ages"
+# against wall-clock time. Relax the oracle-stale guard locally (real Chainlink on
+# Amoy keeps the strict default). Drive F9 stale-tests via the FX mock's forceStale.
+auric:
+  pricing:
+    oracle-max-stale-seconds: 31536000
+
+# Local Hardhat deployment (deterministic addresses from `npm run deploy:local`).
+# Overridden by env for Amoy. Config, not hardcode — see CONTRACT-07 exports.
+blockchain:
+  rpc-url: http://localhost:8545
+  chain-id: 31337
+  # Hardhat account #1 — the local minter/TrustedIssuer (well-known PUBLIC test key,
+  # funded by the node). Local deploy sets this account as issuer + registry agent.
+  minter-private-key: "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
+  contracts:
+    gold-token: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+    identity-registry: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+    compliance-module: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+    trusted-issuers: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+    price-feed: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"

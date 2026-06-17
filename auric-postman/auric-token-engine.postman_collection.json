@@ -1,0 +1,211 @@
+{
+  "info": {
+    "_postman_id": "auric-token-engine-collection",
+    "name": "Auric Token Engine",
+    "description": "REST API for the Auric gold-token POC. Use the 'Auric — Local' environment. Start the backend with ./run-deps.sh (or ./run-local.sh).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health & Info",
+      "item": [
+        {
+          "name": "Health",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/actuator/health", "host": ["{{baseUrl}}"], "path": ["actuator", "health"] } }
+        },
+        {
+          "name": "Meta",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/v1/meta", "host": ["{{baseUrl}}"], "path": ["api", "v1", "meta"] } }
+        },
+        {
+          "name": "Vendors probe",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/v1/vendors/probe", "host": ["{{baseUrl}}"], "path": ["api", "v1", "vendors", "probe"] } }
+        }
+      ]
+    },
+    {
+      "name": "Chain (read)",
+      "item": [
+        {
+          "name": "Chain info",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/v1/chain/info", "host": ["{{baseUrl}}"], "path": ["api", "v1", "chain", "info"] } }
+        },
+        {
+          "name": "Total supply",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/v1/chain/supply", "host": ["{{baseUrl}}"], "path": ["api", "v1", "chain", "supply"] } }
+        },
+        {
+          "name": "Balance of wallet",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/v1/chain/balance/{{wallet}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "chain", "balance", "{{wallet}}"] } }
+        }
+      ]
+    },
+    {
+      "name": "Pricing",
+      "item": [
+        {
+          "name": "Quote (MINT 10g)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/v1/price/quote?grams=10&side=MINT", "host": ["{{baseUrl}}"], "path": ["api", "v1", "price", "quote"], "query": [ { "key": "grams", "value": "10" }, { "key": "side", "value": "MINT" } ] } }
+        },
+        {
+          "name": "Quote (REDEEM 5g)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/v1/price/quote?grams=5&side=REDEEM", "host": ["{{baseUrl}}"], "path": ["api", "v1", "price", "quote"], "query": [ { "key": "grams", "value": "5" }, { "key": "side", "value": "REDEEM" } ] } }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Whitelist wallet",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"walletAddress\": \"{{wallet}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/whitelist", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "whitelist"] }
+          }
+        },
+        {
+          "name": "Manual mint (5g)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"walletAddress\": \"{{wallet}}\",\n  \"grams\": 5\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/manual-mint", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "manual-mint"] }
+          }
+        },
+        {
+          "name": "Freeze wallet",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"walletAddress\": \"{{wallet}}\",\n  \"frozen\": true\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/freeze", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "freeze"] }
+          }
+        },
+        {
+          "name": "Force transfer (2g)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"from\": \"{{wallet}}\",\n  \"to\": \"{{wallet2}}\",\n  \"grams\": 2\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/force-transfer", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "force-transfer"] }
+          }
+        },
+        {
+          "name": "Manual burn (1g)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"walletAddress\": \"{{wallet2}}\",\n  \"grams\": 1\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/manual-burn", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "manual-burn"] }
+          }
+        },
+        {
+          "name": "Rule update",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"ruleType\": \"DAILY_MINT_LIMIT_SGD\",\n  \"value\": \"50000\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/rule", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "rule"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mint saga",
+      "item": [
+        {
+          "name": "Mint (10g)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"walletAddress\": \"{{wallet}}\",\n  \"grams\": 10,\n  \"paymentReference\": \"{{paymentRef}}\",\n  \"idempotencyKey\": \"{{idempotencyKey}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/api/v1/mint", "host": ["{{baseUrl}}"], "path": ["api", "v1", "mint"] },
+            "description": "Prereqs: wallet whitelisted, and payment credited at the bank mock (see Simulator > Credit payment). Change idempotencyKey for a new mint."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Redeem saga",
+      "item": [
+        {
+          "name": "Redeem (5g)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"walletAddress\": \"{{wallet}}\",\n  \"grams\": 5,\n  \"bankAccount\": \"DBS-5678\",\n  \"idempotencyKey\": \"r1\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/api/v1/redeem", "host": ["{{baseUrl}}"], "path": ["api", "v1", "redeem"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reconciliation",
+      "item": [
+        {
+          "name": "Trigger",
+          "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/v1/recon/trigger", "host": ["{{baseUrl}}"], "path": ["api", "v1", "recon", "trigger"] } }
+        },
+        {
+          "name": "Status",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/v1/recon/status", "host": ["{{baseUrl}}"], "path": ["api", "v1", "recon", "status"] } }
+        },
+        {
+          "name": "Resume minting",
+          "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/v1/recon/resume", "host": ["{{baseUrl}}"], "path": ["api", "v1", "recon", "resume"] } }
+        }
+      ]
+    },
+    {
+      "name": "Simulator (vendors + chaos)",
+      "item": [
+        {
+          "name": "Sim health",
+          "request": { "method": "GET", "url": { "raw": "{{simUrl}}/health", "host": ["{{simUrl}}"], "path": ["health"] } }
+        },
+        {
+          "name": "Credit payment (mint prereq)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"reference\": \"{{paymentRef}}\",\n  \"amountSgd\": 1046.89\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{simUrl}}/bank/_credit", "host": ["{{simUrl}}"], "path": ["bank", "_credit"] }
+          }
+        },
+        {
+          "name": "Set vault balance",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"deliveredGrams\": 500,\n  \"lagMs\": 0\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{simUrl}}/vault/_config", "host": ["{{simUrl}}"], "path": ["vault", "_config"] }
+          }
+        },
+        {
+          "name": "Chaos: bank.payout fail (F4)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"target\": \"bank.payout\",\n  \"mode\": \"fail\",\n  \"params\": { \"httpStatus\": 503 }\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{simUrl}}/admin/inject", "host": ["{{simUrl}}"], "path": ["admin", "inject"] }
+          }
+        },
+        {
+          "name": "Chaos: FX stale (F9)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"forceStale\": true\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{simUrl}}/fx/_set", "host": ["{{simUrl}}"], "path": ["fx", "_set"] }
+          }
+        },
+        {
+          "name": "Chaos: reset",
+          "request": { "method": "POST", "url": { "raw": "{{simUrl}}/admin/reset", "host": ["{{simUrl}}"], "path": ["admin", "reset"] } }
+        }
+      ]
+    }
+  ]
+}

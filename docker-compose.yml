@@ -1,0 +1,115 @@
+# Auric — local development stack
+#
+# Today (skeleton):   `docker compose up`              → Postgres + Adminer (work immediately)
+# Once apps exist:    `docker compose --profile apps up`  → also builds/starts the services below
+#
+# App services are under the `apps` profile so the default `up` works before their
+# Dockerfiles are scaffolded (token-engine: ENGINE-01, vendor-simulator: SIM-01,
+# portals: WALLET-01/PORTAL). All values default to dev-safe locals; override via a
+# root `.env` (added in INFRA-03). NEVER put real secrets here.
+
+name: auric
+
+services:
+  # ---- Infrastructure (works now) ------------------------------------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: auric-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-auric}
+      POSTGRES_PASSWORD: ${DB_PASS:-auric_local_dev}
+      POSTGRES_DB: ${DB_NAME:-auric}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - auric-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-auric} -d ${DB_NAME:-auric}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  adminer:
+    image: adminer:4
+    container_name: auric-adminer
+    ports:
+      - "${ADMINER_PORT:-8081}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ---- Application services (enabled with `--profile apps`) -----------------
+  # token-engine — Spring Boot Token Engine. Needs auric-api/Dockerfile (ENGINE-01).
+  token-engine:
+    profiles: ["apps"]
+    build: ./auric-api
+    container_name: auric-token-engine
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-local,mock}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-auric}
+      DB_PASS: ${DB_PASS:-auric_local_dev}
+      DB_NAME: ${DB_NAME:-auric}
+      BLOCKCHAIN_RPC_URL: ${BLOCKCHAIN_RPC_URL:-https://rpc-amoy.polygon.technology}
+      BLOCKCHAIN_CHAIN_ID: ${BLOCKCHAIN_CHAIN_ID:-80002}
+      VENDOR_SIM_BASE_URL: http://vendor-simulator:9090
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # vendor-simulator — mock vault/dealer/kyc/bank/fx + chaos API. Needs Dockerfile (SIM-01).
+  vendor-simulator:
+    profiles: ["apps"]
+    build: ./auric-api/vendor-simulator
+    container_name: auric-vendor-simulator
+    ports:
+      - "${SIM_PORT:-9090}:9090"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # investor-portal / admin-dashboard — React/Vite apps. Need auric-web/Dockerfile (WALLET-01/PORTAL).
+  investor-portal:
+    profiles: ["apps"]
+    build:
+      context: ./auric-web
+      args:
+        APP: investor
+    container_name: auric-investor-portal
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
+      VITE_CHAIN_ID: ${BLOCKCHAIN_CHAIN_ID:-80002}
+    ports:
+      - "${WEB_INVESTOR_PORT:-5173}:80"
+    depends_on:
+      - token-engine
+
+  admin-dashboard:
+    profiles: ["apps"]
+    build:
+      context: ./auric-web
+      args:
+        APP: admin
+    container_name: auric-admin-dashboard
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
+      VITE_CHAIN_ID: ${BLOCKCHAIN_CHAIN_ID:-80002}
+    ports:
+      - "${WEB_ADMIN_PORT:-5174}:80"
+    depends_on:
+      - token-engine
+
+volumes:
+  auric-pgdata:

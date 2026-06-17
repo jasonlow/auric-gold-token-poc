@@ -1,0 +1,68 @@
+spring:
+  profiles:
+    # Default to local dev + simulated vendors. Override via SPRING_PROFILES_ACTIVE.
+    active: ${SPRING_PROFILES_ACTIVE:local,mock}
+  application:
+    name: auric-token-engine
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:auric}
+    username: ${DB_USER:auric}
+    password: ${DB_PASS:auric_local_dev}
+  jpa:
+    hibernate:
+      ddl-auto: none          # schema is owned by Flyway, never Hibernate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+auric:
+  vendors:
+    mode: ${AURIC_VENDORS_MODE:mock}
+    sim-base-url: ${VENDOR_SIM_BASE_URL:http://localhost:9090}
+  pricing:
+    mint-fee-percent: 0.005          # 0.5% (BR-08)
+    redeem-fee-percent: 0.005        # 0.5% (BR-07)
+    quote-ttl-seconds: 90            # quote-lock window (FR-ORC-07)
+    oracle-max-stale-seconds: 3600   # block pricing on a stale gold price (F9)
+  reconciliation:
+    tolerance-grams: 0.01            # gram tolerance (NFR-DAT-01)
+    interval-ms: 3600000             # hourly
+    initial-delay-ms: 3600000        # don't run immediately at boot
+  alerts:
+    webhook-url: ${ALERT_WEBHOOK_URL:}   # optional; console-only if unset
+
+blockchain:
+  rpc-url: ${BLOCKCHAIN_RPC_URL:http://localhost:8545}
+  chain-id: ${BLOCKCHAIN_CHAIN_ID:31337}
+  minter-private-key: ${MINTER_PRIVATE_KEY:}     # engine's TrustedIssuer signer
+  contracts:
+    gold-token: ${GOLD_TOKEN_ADDRESS:}
+    identity-registry: ${IDENTITY_REGISTRY_ADDRESS:}
+    compliance-module: ${COMPLIANCE_MODULE_ADDRESS:}
+    trusted-issuers: ${TRUSTED_ISSUERS_ADDRESS:}
+    price-feed: ${PRICE_FEED_ADDRESS:}
+
+server:
+  port: ${API_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: ${spring.application.name}
+    version: 0.1.0-SNAPSHOT
